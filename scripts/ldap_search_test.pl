@@ -117,12 +117,12 @@ for my $i (1..9) {
 
     if (defined $result && @$result) {
         print "${green}Entry with filter $ldap_filter found:${reset_color}\n";
-        printf("%-60s | %-30s | %-30s\n", "Object Name", "CN", "Mail");
+        printf("%-30s | %-30s | %-60s\n", "CN", "Mail", "Object Name");
         foreach my $entry (@$result) {
             my $object_name = $entry->{asn}->{objectName};
             my $cn = $entry->{asn}->{attributes}->[0]->{vals}->[0];
             my $mail = $entry->{asn}->{attributes}->[1]->{vals}->[0];
-            printf("%-60s | %-30s | %-30s\n", $object_name, $cn, $mail);
+            printf("%-30s | %-30s | %-60s\n", $cn, $mail, $object_name);
         }
     } else {
         print "${red}Entry with filter $ldap_filter not found.${reset_color}\n";
