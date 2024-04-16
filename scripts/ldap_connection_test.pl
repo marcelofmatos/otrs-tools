@@ -37,7 +37,6 @@ my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
 my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 my $HTTPBasicAuthObject = $Kernel::OM->Get('Kernel::System::Auth');
 
-
 # Função para testar a conexão LDAP
 sub testar_conexao_ldap {
     my ($host,$port) = @_;
@@ -58,12 +57,43 @@ my $vermelho = "\e[31m"; # vermelho
 my $reset_cor = "\e[0m"; # resetar cor
 
 # mostra configuracao LDAP atual no ambiente
-HOST:
+
+print "AuthModule:\n";
+AuthModuleHOST:
+for my $i (1..9) {
+    # Acessando o valor correspondente no $ConfigObject
+    my $host = $ConfigObject->{"AuthModule::LDAP::Host$i"};
+
+    next AuthModuleHOST if (!$host);
+
+    my $port = 389;
+
+    if(
+         $ConfigObject->{"AuthModule::LDAP::Param$i"} 
+         && $ConfigObject->{"AuthModule::LDAP::Param$i"}->{'port'}
+    ) { 
+      $port = $ConfigObject->{"AuthModule::LDAP::Param$i"}->{'port'};
+    }
+
+    # Testando a conexão LDAP para o host atual
+    my $resultado = testar_conexao_ldap($host,$port);
+    
+    # Imprimindo a saída no formato destacado
+    if ($resultado == 1) {
+        print "Host$i: $host: ${verde}OK${reset_cor}\n";
+    } else {
+        print "Host$i: $host: ${vermelho}erro na conexão${reset_cor}: $resultado\n";
+    }    
+}
+
+
+print "AuthSyncModule:\n";
+AuthSyncModuleHOST:
 for my $i (1..9) {
     # Acessando o valor correspondente no $ConfigObject
     my $host = $ConfigObject->{"AuthSyncModule::LDAP::Host$i"};
 
-    next HOST if (!$host);
+    next AuthSyncModuleHOST if (!$host);
 
     my $port = 389;
 
@@ -79,7 +109,66 @@ for my $i (1..9) {
     
     # Imprimindo a saída no formato destacado
     if ($resultado == 1) {
-        print "Host$i: $host: ${verde}teste ok${reset_cor}\n";
+        print "Host$i: $host: ${verde}OK${reset_cor}\n";
+    } else {
+        print "Host$i: $host: ${vermelho}erro na conexão${reset_cor}: $resultado\n";
+    }    
+}
+
+
+print "CustomerUser:\n";
+CustomerUserHOST:
+for my $i (1..9) {
+    # Acessando o valor correspondente no $ConfigObject
+    my $host = $ConfigObject->{"CustomerUser$i"}->{"Params"}->{"Host"};
+
+    next if (!($ConfigObject->{"CustomerUser$i"}->{"Module"} eq "Kernel::System::CustomerUser::LDAP"));
+
+    next CustomerUserHOST if (!$host);
+
+    my $port = 389;
+
+    if(
+         $ConfigObject->{"CustomerUser$i"}->{"Params"} # no critic
+         && $ConfigObject->{"CustomerUser$i"}->{"Params"}->{'Params'}->{'port'} # no critic
+    ) { 
+      $port = $ConfigObject->{"CustomerUser$i"}->{"Params"}->{'Params'}->{'port'};
+    }
+
+    # Testando a conexão LDAP para o host atual
+    my $resultado = testar_conexao_ldap($host,$port);
+    
+    # Imprimindo a saída no formato destacado
+    if ($resultado == 1) {
+        print "Host$i: $host: ${verde}OK${reset_cor}\n";
+    } else {
+        print "Host$i: $host: ${vermelho}erro na conexão${reset_cor}: $resultado\n";
+    }    
+}
+
+print "Customer::AuthModule:\n";
+CustomerAuthModuleHOST:
+for my $i (1..9) {
+    # Acessando o valor correspondente no $ConfigObject
+    my $host = $ConfigObject->{"Customer::AuthModule::LDAP::Host$i"};
+
+    next CustomerAuthModuleHOST if (!$host);
+
+    my $port = 389;
+
+    if(
+         $ConfigObject->{"Customer::AuthModule::LDAP::Param$i"} 
+         && $ConfigObject->{"Customer::AuthModule::LDAP::Param$i"}->{'port'}
+    ) { 
+      $port = $ConfigObject->{"Customer::AuthModule::LDAP::Param$i"}->{'port'};
+    }
+
+    # Testando a conexão LDAP para o host atual
+    my $resultado = testar_conexao_ldap($host,$port);
+    
+    # Imprimindo a saída no formato destacado
+    if ($resultado == 1) {
+        print "Host$i: $host: ${verde}OK${reset_cor}\n";
     } else {
         print "Host$i: $host: ${vermelho}erro na conexão${reset_cor}: $resultado\n";
     }    
