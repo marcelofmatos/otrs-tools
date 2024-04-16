@@ -28,7 +28,7 @@ my $ldap_filter;
 GetOptions('filter=s' => \$ldap_filter);
 
 my $attrs = [ 'cn','mail' ];
-my $sizelimit = 10;
+my $sizelimit = 1000;
 
 # Inicializa o Object Manager
 local $Kernel::OM = Kernel::System::ObjectManager->new(
