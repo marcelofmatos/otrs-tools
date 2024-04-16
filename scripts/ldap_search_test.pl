@@ -27,7 +27,8 @@ use Data::Dumper;
 my $ldap_filter;
 GetOptions('filter=s' => \$ldap_filter);
 
-my $attrs;
+my $attrs = [ 'cn','mail' ];
+my $sizelimit = 10;
 
 # Inicializa o Object Manager
 local $Kernel::OM = Kernel::System::ObjectManager->new(
@@ -61,14 +62,15 @@ sub search_by_filter {
     
     my $filter = $ldap_filter;
     print "$filter\n";
-    if (!$attrs ) { 
+    if (!$attrs) { 
         $attrs = [ 'cn','mail' ]; 
     }
     $mesg = $ldap->search(
-        base => $base_dn,
-        filter => $filter,
-        scope   => "sub",
-        attrs   =>  $attrs,
+        base      => $base_dn,
+        filter    => $filter,
+        scope     => "sub",
+        attrs     =>  $attrs,
+        sizelimit => $sizelimit,
     );
     #print Dumper($mesg);
     if ($mesg->code) {
