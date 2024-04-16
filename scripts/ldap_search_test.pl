@@ -69,7 +69,7 @@ sub search_by_filter {
         base      => $base_dn,
         filter    => $filter,
         scope     => "sub",
-        attrs     =>  $attrs,
+        attrs     => $attrs,
         sizelimit => $sizelimit,
     );
     #print Dumper($mesg);
