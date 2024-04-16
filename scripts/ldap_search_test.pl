@@ -116,7 +116,7 @@ for my $i (1..9) {
     my $result = search_by_filter($host, $ldap_port, $base_dn, $bind_dn, $bind_password, $ldap_filter);
 
     if (defined $result && @$result) {
-        print "User with filter $ldap_filter found:\n";
+        print "${green}User with filter $ldap_filter found:${reset_color}\n";
         printf("%-60s | %-30s | %-30s\n", "Object Name", "CN", "Mail");
         foreach my $entry (@$result) {
             my $object_name = $entry->{asn}->{objectName};
@@ -125,6 +125,6 @@ for my $i (1..9) {
             printf("%-60s | %-30s | %-30s\n", $object_name, $cn, $mail);
         }
     } else {
-        print "User with filter $ldap_filter not found.\n";
+        print "${red}User with filter $ldap_filter not found.${reset_color}\n";
     }
 }
