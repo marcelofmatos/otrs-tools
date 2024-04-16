@@ -61,7 +61,7 @@ sub search_by_filter {
     }
     
     my $filter = $ldap_filter;
-    print "$filter\n";
+    #print "$filter\n";
     if (!$attrs) { 
         $attrs = [ 'cn','mail' ]; 
     }
@@ -112,7 +112,7 @@ for my $i (1..9) {
     my $bind_dn         = $ConfigObject->{"AuthModule::LDAP::SearchUserDN$i"};
     my $bind_password   = $ConfigObject->{"AuthModule::LDAP::SearchUserPw$i"};
 
-    print "$host, $ldap_port, $base_dn, $bind_dn, $bind_password, $ldap_filter\n";
+    print "$host, $ldap_port, $base_dn, $bind_dn, $ldap_filter\n";
     my $result = search_by_filter($host, $ldap_port, $base_dn, $bind_dn, $bind_password, $ldap_filter);
 
     if (defined $result && @$result) {
