@@ -23,7 +23,6 @@ use Encode qw(decode_utf8);
 use Net::LDAP;
 use Getopt::Long;
 use Data::Dumper;
-use Text::Table;
 
 my $ldap_filter;
 GetOptions('filter=s' => \$ldap_filter);
@@ -118,13 +117,13 @@ for my $i (1..9) {
 
     if (defined $result && @$result) {
         print "User with filter $ldap_filter found:\n";
+        printf("%-60s | %-30s | %-30s\n", "Object Name", "CN", "Mail");
         foreach my $entry (@$result) {
             my $object_name = $entry->{asn}->{objectName};
             my $cn = $entry->{asn}->{attributes}->[0]->{vals}->[0];
             my $mail = $entry->{asn}->{attributes}->[1]->{vals}->[0];
-            $table->add($object_name, $cn, $mail);
+            printf("%-60s | %-30s | %-30s\n", $object_name, $cn, $mail);
         }
-        print $table;
     } else {
         print "User with filter $ldap_filter not found.\n";
     }
