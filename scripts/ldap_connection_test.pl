@@ -35,7 +35,6 @@ my $EncodeObject = $Kernel::OM->Get('Kernel::System::Encode');
 my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
 my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
 my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
-#my $HTTPBasicAuthObject = $Kernel::OM->Get('Kernel::System::Auth::HTTPBasicAuth');
 my $HTTPBasicAuthObject = $Kernel::OM->Get('Kernel::System::Auth');
 
 
@@ -78,7 +77,7 @@ for my $i (1..9) {
     # Testando a conexão LDAP para o host atual
     my $resultado = testar_conexao_ldap($host,$port);
     
-    # Imprimindo a saída no formato desejado
+    # Imprimindo a saída no formato destacado
     if ($resultado == 1) {
         print "Host$i: $host: ${verde}teste ok${reset_cor}\n";
     } else {
