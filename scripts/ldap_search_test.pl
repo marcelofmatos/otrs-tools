@@ -23,8 +23,6 @@ use Encode qw(decode_utf8);
 use Net::LDAP;
 use Getopt::Long;
 use Data::Dumper;
-use utf8;
-use Encode qw(decode_utf8);
 
 my $ldap_filter;
 GetOptions('filter=s' => \$ldap_filter);
