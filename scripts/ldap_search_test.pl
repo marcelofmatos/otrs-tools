@@ -25,12 +25,17 @@ use Getopt::Long;
 use Data::Dumper;
 
 my $debug = 0;
-my $attrs = [ 'cn','mail' ];
+my $attrs_list = 'cn,mail,uid,sAMAccountName';
 my $sizelimit = 1000;
 
 my $ldap_filter;
-GetOptions('filter=s' => \$ldap_filter);
-GetOptions('debug' => \$debug);
+GetOptions(
+      'filter=s' => \$ldap_filter,
+      'attrs=s' => \$attrs_list,
+      'debug' => \$debug,
+);
+
+my $attrs = [split ',', $attrs_list];
 
 # Inicializa o Object Manager
 local $Kernel::OM = Kernel::System::ObjectManager->new(
@@ -63,10 +68,7 @@ sub search_by_filter {
     }
     
     my $filter = $ldap_filter;
-    #print "$filter\n";
-    if (!$attrs) { 
-        $attrs = [ 'cn','mail' ]; 
-    }
+
     $mesg = $ldap->search(
         base      => $base_dn,
         filter    => $filter,
@@ -74,7 +76,7 @@ sub search_by_filter {
         attrs     => $attrs,
         sizelimit => $sizelimit,
     );
-    #print Dumper($mesg);
+
     if ($mesg->code) {
         die "LDAP search failed: " . $mesg->error;
     }
@@ -126,7 +128,7 @@ for my $i (1..9) {
             my $mail = $entry->{asn}->{attributes}->[1]->{vals}->[0];
             printf("%-20s | %-30s | %-50s\n", $cn, $mail, $object_name);
             if ($debug) {
-                print Dumper($entry);
+                print Dumper($entry->{asn});
             }
         }
     } else {
