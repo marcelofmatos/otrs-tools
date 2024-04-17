@@ -119,14 +119,27 @@ for my $i (1..9) {
     print "$host, $ldap_port, $base_dn, $bind_dn, $ldap_filter\n";
     my $result = search_by_filter($host, $ldap_port, $base_dn, $bind_dn, $bind_password, $ldap_filter);
 
+    my @headers = @$attrs;
+    my @values;
+
     if (defined $result && @$result) {
         print "${green}Entry with filter $ldap_filter found:${reset_color}\n";
-        printf("%-20s | %-30s | %-50s\n", "CN", "Mail", "Object Name");
+        my $format_headers = "%s\t| " x scalar(@headers);
+        printf("$format_headers\n", @headers);
         foreach my $entry (@$result) {
+            @values = ();
             my $object_name = $entry->{asn}->{objectName};
-            my $cn = $entry->{asn}->{attributes}->[0]->{vals}->[0];
-            my $mail = $entry->{asn}->{attributes}->[1]->{vals}->[0];
-            printf("%-20s | %-30s | %-50s\n", $cn, $mail, $object_name);
+
+            foreach my $attr (@headers) {
+                foreach my $attribute (@{$entry->{asn}->{attributes}}) {
+                    if($attribute->{type} eq $attr) {
+                        push @values, $attribute->{vals}->[0];
+                        last;
+                    }
+                }
+            }
+            my $format_string = "%s\t| " x scalar(@values);
+            printf("$format_string\n", @values);
             if ($debug) {
                 print Dumper($entry->{asn});
             }
