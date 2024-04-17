@@ -24,11 +24,13 @@ use Net::LDAP;
 use Getopt::Long;
 use Data::Dumper;
 
-my $ldap_filter;
-GetOptions('filter=s' => \$ldap_filter);
-
+my $debug = 0;
 my $attrs = [ 'cn','mail' ];
 my $sizelimit = 1000;
+
+my $ldap_filter;
+GetOptions('filter=s' => \$ldap_filter);
+GetOptions('debug' => \$debug);
 
 # Inicializa o Object Manager
 local $Kernel::OM = Kernel::System::ObjectManager->new(
@@ -123,6 +125,9 @@ for my $i (1..9) {
             my $cn = $entry->{asn}->{attributes}->[0]->{vals}->[0];
             my $mail = $entry->{asn}->{attributes}->[1]->{vals}->[0];
             printf("%-20s | %-30s | %-50s\n", $cn, $mail, $object_name);
+            if ($debug) {
+                print Dumper($entry);
+            }
         }
     } else {
         print "${red}Entry with filter $ldap_filter not found.${reset_color}\n";
