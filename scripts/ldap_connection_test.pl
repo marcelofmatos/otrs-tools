@@ -1,4 +1,7 @@
-#!/usr/bin/perl
+#
+# OTRS Tools
+# https://github.com/marcelofmatos/otrs-tools
+#
 
 use strict;
 #use warnings;
