@@ -138,10 +138,11 @@ print "CustomerUser:\n";
 CustomerUserHOST:
 for my $i (0..9) {
     my $suffix = $i == 0 ? '' : $i;
+    
+    next if (!($ConfigObject->{"CustomerUser$suffix"}));
+
     # Acessando o valor correspondente no $ConfigObject
     my $host = $ConfigObject->{"CustomerUser$suffix"}->{"Params"}->{"Host"};
-
-    next if (!($ConfigObject->{"CustomerUser$suffix"}));
 
     next if (!($ConfigObject->{"CustomerUser$suffix"}->{"Module"} eq "Kernel::System::CustomerUser::LDAP"));
 
