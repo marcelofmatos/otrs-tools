@@ -68,9 +68,9 @@ sub testar_conexao_ldap {
 }
 
 # Definindo códigos de escape ANSI para cores
-my $verde = "\e[32m";   # verde
-my $vermelho = "\e[31m"; # vermelho
-my $reset_cor = "\e[0m"; # resetar cor
+my $green = "\e[32m";
+my $red = "\e[31m";
+my $color_reset = "\e[0m";
 
 # mostra configuracao LDAP atual no ambiente
 
@@ -97,9 +97,9 @@ for my $i (0..9) {
     
     # Imprimindo a saída no formato destacado
     if ($resultado == 1) {
-        print "Host$i: $host: ${verde}OK${reset_cor}\n";
+        print "Host$i: $host: ${green}OK${color_reset}\n";
     } else {
-        print "Host$i: $host: ${vermelho}erro na conexão${reset_cor}: $resultado\n";
+        print "Host$i: $host: ${red}erro na conexão${color_reset}: $resultado\n";
     }    
 }
 
@@ -127,9 +127,9 @@ for my $i (0..9) {
     
     # Imprimindo a saída no formato destacado
     if ($resultado == 1) {
-        print "Host$i: $host: ${verde}OK${reset_cor}\n";
+        print "Host$i: $host: ${green}OK${color_reset}\n";
     } else {
-        print "Host$i: $host: ${vermelho}erro na conexão${reset_cor}: $resultado\n";
+        print "Host$i: $host: ${red}erro na conexão${color_reset}: $resultado\n";
     }    
 }
 
@@ -162,9 +162,9 @@ for my $i (0..9) {
     
     # Imprimindo a saída no formato destacado
     if ($resultado == 1) {
-        print "Host$i: $host: ${verde}OK${reset_cor}\n";
+        print "Host$i: $host: ${green}OK${color_reset}\n";
     } else {
-        print "Host$i: $host: ${vermelho}erro na conexão${reset_cor}: $resultado\n";
+        print "Host$i: $host: ${red}erro na conexão${color_reset}: $resultado\n";
     }    
 }
 
@@ -191,9 +191,9 @@ for my $i (0..9) {
     
     # Imprimindo a saída no formato destacado
     if ($resultado == 1) {
-        print "Host$i: $host: ${verde}OK${reset_cor}\n";
+        print "Host$i: $host: ${green}OK${color_reset}\n";
     } else {
-        print "Host$i: $host: ${vermelho}erro na conexão${reset_cor}: $resultado\n";
+        print "Host$i: $host: ${red}erro na conexão${color_reset}: $resultado\n";
     }    
 }
 
