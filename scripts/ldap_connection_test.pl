@@ -76,19 +76,20 @@ my $reset_cor = "\e[0m"; # resetar cor
 
 print "AuthModule:\n";
 AuthModuleHOST:
-for my $i (1..9) {
+for my $i (0..9) {
+    my $suffix = $i == 0 ? '' : $i;
     # Acessando o valor correspondente no $ConfigObject
-    my $host = $ConfigObject->{"AuthModule::LDAP::Host$i"};
+    my $host = $ConfigObject->{"AuthModule::LDAP::Host$suffix"};
 
     next AuthModuleHOST if (!$host);
 
     my $port = 389;
 
     if(
-         $ConfigObject->{"AuthModule::LDAP::Param$i"} 
-         && $ConfigObject->{"AuthModule::LDAP::Param$i"}->{'port'}
+         $ConfigObject->{"AuthModule::LDAP::Param$suffix"} 
+         && $ConfigObject->{"AuthModule::LDAP::Param$suffix"}->{'port'}
     ) { 
-      $port = $ConfigObject->{"AuthModule::LDAP::Param$i"}->{'port'};
+      $port = $ConfigObject->{"AuthModule::LDAP::Param$suffix"}->{'port'};
     }
 
     # Testando a conexão LDAP para o host atual
@@ -105,19 +106,20 @@ for my $i (1..9) {
 
 print "AuthSyncModule:\n";
 AuthSyncModuleHOST:
-for my $i (1..9) {
+for my $i (0..9) {
+    my $suffix = $i == 0 ? '' : $i;
     # Acessando o valor correspondente no $ConfigObject
-    my $host = $ConfigObject->{"AuthSyncModule::LDAP::Host$i"};
+    my $host = $ConfigObject->{"AuthSyncModule::LDAP::Host$suffix"};
 
     next AuthSyncModuleHOST if (!$host);
 
     my $port = 389;
 
     if(
-         $ConfigObject->{"AuthSyncModule::LDAP::Param$i"} 
-         && $ConfigObject->{"AuthSyncModule::LDAP::Param$i"}->{'port'}
+         $ConfigObject->{"AuthSyncModule::LDAP::Param$suffix"} 
+         && $ConfigObject->{"AuthSyncModule::LDAP::Param$suffix"}->{'port'}
     ) { 
-      $port = $ConfigObject->{"AuthSyncModule::LDAP::Param$i"}->{'port'};
+      $port = $ConfigObject->{"AuthSyncModule::LDAP::Param$suffix"}->{'port'};
     }
 
     # Testando a conexão LDAP para o host atual
@@ -134,21 +136,24 @@ for my $i (1..9) {
 
 print "CustomerUser:\n";
 CustomerUserHOST:
-for my $i (1..9) {
+for my $i (0..9) {
+    my $suffix = $i == 0 ? '' : $i;
     # Acessando o valor correspondente no $ConfigObject
-    my $host = $ConfigObject->{"CustomerUser$i"}->{"Params"}->{"Host"};
+    my $host = $ConfigObject->{"CustomerUser$suffix"}->{"Params"}->{"Host"};
 
-    next if (!($ConfigObject->{"CustomerUser$i"}->{"Module"} eq "Kernel::System::CustomerUser::LDAP"));
+    next if (!($ConfigObject->{"CustomerUser$suffix"});
+
+    next if (!($ConfigObject->{"CustomerUser$suffix"}->{"Module"} eq "Kernel::System::CustomerUser::LDAP"));
 
     next CustomerUserHOST if (!$host);
 
     my $port = 389;
 
     if(
-         $ConfigObject->{"CustomerUser$i"}->{"Params"} # no critic
-         && $ConfigObject->{"CustomerUser$i"}->{"Params"}->{'Params'}->{'port'} # no critic
+         $ConfigObject->{"CustomerUser$suffix"}->{"Params"} # no critic
+         && $ConfigObject->{"CustomerUser$suffix"}->{"Params"}->{'Params'}->{'port'} # no critic
     ) { 
-      $port = $ConfigObject->{"CustomerUser$i"}->{"Params"}->{'Params'}->{'port'};
+      $port = $ConfigObject->{"CustomerUser$suffix"}->{"Params"}->{'Params'}->{'port'};
     }
 
     # Testando a conexão LDAP para o host atual
@@ -164,19 +169,20 @@ for my $i (1..9) {
 
 print "Customer::AuthModule:\n";
 CustomerAuthModuleHOST:
-for my $i (1..9) {
+for my $i (0..9) {
+    my $suffix = $i == 0 ? '' : $i;
     # Acessando o valor correspondente no $ConfigObject
-    my $host = $ConfigObject->{"Customer::AuthModule::LDAP::Host$i"};
+    my $host = $ConfigObject->{"Customer::AuthModule::LDAP::Host$suffix"};
 
     next CustomerAuthModuleHOST if (!$host);
 
     my $port = 389;
 
     if(
-         $ConfigObject->{"Customer::AuthModule::LDAP::Param$i"} 
-         && $ConfigObject->{"Customer::AuthModule::LDAP::Param$i"}->{'port'}
+         $ConfigObject->{"Customer::AuthModule::LDAP::Param$suffix"} 
+         && $ConfigObject->{"Customer::AuthModule::LDAP::Param$suffix"}->{'port'}
     ) { 
-      $port = $ConfigObject->{"Customer::AuthModule::LDAP::Param$i"}->{'port'};
+      $port = $ConfigObject->{"Customer::AuthModule::LDAP::Param$suffix"}->{'port'};
     }
 
     # Testando a conexão LDAP para o host atual
