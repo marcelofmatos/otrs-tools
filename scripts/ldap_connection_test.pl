@@ -18,10 +18,8 @@
 
 use strict;
 use warnings;
-# Desabilita o aviso de "Subroutine redefined"
 no warnings 'redefine';
 
-# use ../ as lib location
 use File::Basename;
 use FindBin qw($RealBin);
 use lib dirname($RealBin);
@@ -38,14 +36,12 @@ use utf8;
 use Encode qw(decode_utf8);
 use Net::LDAP;
 
-# Inicializa o Object Manager
 local $Kernel::OM = Kernel::System::ObjectManager->new(
     'Kernel::System::Log' => {
         LogPrefix => 'OTRS-ldapsearch',
     },
 );
 
-# Criando instâncias dos objetos necessários
 my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 my $EncodeObject = $Kernel::OM->Get('Kernel::System::Encode');
 my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
@@ -53,149 +49,56 @@ my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
 my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 my $HTTPBasicAuthObject = $Kernel::OM->Get('Kernel::System::Auth');
 
-# Função para testar a conexão LDAP
-sub testar_conexao_ldap {
-    my ($host,$port) = @_;
-    
-    # Tentativa de conexão LDAP
-    my $ldap = Net::LDAP->new($host, port => $port, timeout => 10);
-    if ($ldap) {
-        $ldap->disconnect;
-        return 1; # Conexão bem-sucedida
-    } else {
-        return $@; # Retorna o erro
-    }
-}
-
 # Definindo códigos de escape ANSI para cores
 my $green = "\e[32m";
 my $red = "\e[31m";
 my $color_reset = "\e[0m";
 
-# mostra configuracao LDAP atual no ambiente
+# Função para testar a conexão LDAP
+sub testar_conexao_ldap {
+    my ($host, $port) = @_;
+    my $ldap = Net::LDAP->new($host, port => $port, timeout => 10);
+    return $ldap ? 1 : $@;
+}
 
+# Função para testar múltiplas configurações de hosts LDAP
+sub testar_hosts_ldap {
+    my ($config_prefix, $max, $key_host, $key_port) = @_;
+
+    for my $i (0..$max) {
+        my $suffix = $i == 0 ? '' : $i;
+        my $host = $ConfigObject->{"$config_prefix$suffix"}->{$key_host};
+
+        next unless $host;
+
+        my $port = 389;
+        if ($ConfigObject->{"$config_prefix$suffix"}->{$key_port}) {
+            $port = $ConfigObject->{"$config_prefix$suffix"}->{$key_port};
+        }
+
+        print "Host$i: $host: ";
+        my $resultado = testar_conexao_ldap($host, $port);
+
+        if ($resultado == 1) {
+            print "${green}OK${color_reset}\n";
+        } else {
+            print "${red}erro na conexão${color_reset}: $resultado\n";
+        }
+    }
+}
+
+# Testando configurações de AuthModule
 print "AuthModule:\n";
-AuthModuleHOST:
-for my $i (0..9) {
-    my $suffix = $i == 0 ? '' : $i;
-    # Acessando o valor correspondente no $ConfigObject
-    my $host = $ConfigObject->{"AuthModule::LDAP::Host$suffix"};
+testar_hosts_ldap("AuthModule::LDAP::Host", 9, 'Host', 'Param.port');
 
-    next AuthModuleHOST if (!$host);
-
-    my $port = 389;
-
-    if(
-         $ConfigObject->{"AuthModule::LDAP::Param$suffix"} 
-         && $ConfigObject->{"AuthModule::LDAP::Param$suffix"}->{'port'}
-    ) { 
-      $port = $ConfigObject->{"AuthModule::LDAP::Param$suffix"}->{'port'};
-    }
-    
-    print "Host$i: $host: ";
-    
-    # Testando a conexão LDAP para o host atual
-    my $resultado = testar_conexao_ldap($host,$port);
-    
-    # Imprimindo a saída no formato destacado
-    if ($resultado == 1) {
-        print "${green}OK${color_reset}\n";
-    } else {
-        print "${red}erro na conexão${color_reset}: $resultado\n";
-    }    
-}
-
-
+# Testando configurações de AuthSyncModule
 print "AuthSyncModule:\n";
-AuthSyncModuleHOST:
-for my $i (0..9) {
-    my $suffix = $i == 0 ? '' : $i;
-    # Acessando o valor correspondente no $ConfigObject
-    my $host = $ConfigObject->{"AuthSyncModule::LDAP::Host$suffix"};
+testar_hosts_ldap("AuthSyncModule::LDAP::Host", 9, 'Host', 'Param.port');
 
-    next AuthSyncModuleHOST if (!$host);
-
-    my $port = 389;
-
-    if(
-         $ConfigObject->{"AuthSyncModule::LDAP::Param$suffix"} 
-         && $ConfigObject->{"AuthSyncModule::LDAP::Param$suffix"}->{'port'}
-    ) { 
-      $port = $ConfigObject->{"AuthSyncModule::LDAP::Param$suffix"}->{'port'};
-    }
-
-    # Testando a conexão LDAP para o host atual
-    my $resultado = testar_conexao_ldap($host,$port);
-    
-    # Imprimindo a saída no formato destacado
-    if ($resultado == 1) {
-        print "Host$i: $host: ${green}OK${color_reset}\n";
-    } else {
-        print "Host$i: $host: ${red}erro na conexão${color_reset}: $resultado\n";
-    }    
-}
-
-
+# Testando configurações de CustomerUser
 print "CustomerUser:\n";
-CustomerUserHOST:
-for my $i (0..9) {
-    my $suffix = $i == 0 ? '' : $i;
-    
-    next if (!($ConfigObject->{"CustomerUser$suffix"}));
+testar_hosts_ldap("CustomerUser", 9, 'Params.Host', 'Params.Params.port');
 
-    # Acessando o valor correspondente no $ConfigObject
-    my $host = $ConfigObject->{"CustomerUser$suffix"}->{"Params"}->{"Host"};
-
-    next if (!($ConfigObject->{"CustomerUser$suffix"}->{"Module"} eq "Kernel::System::CustomerUser::LDAP"));
-
-    next CustomerUserHOST if (!$host);
-
-    my $port = 389;
-
-    if(
-         $ConfigObject->{"CustomerUser$suffix"}->{"Params"} # no critic
-         && $ConfigObject->{"CustomerUser$suffix"}->{"Params"}->{'Params'}->{'port'} # no critic
-    ) { 
-      $port = $ConfigObject->{"CustomerUser$suffix"}->{"Params"}->{'Params'}->{'port'};
-    }
-
-    # Testando a conexão LDAP para o host atual
-    my $resultado = testar_conexao_ldap($host,$port);
-    
-    # Imprimindo a saída no formato destacado
-    if ($resultado == 1) {
-        print "Host$i: $host: ${green}OK${color_reset}\n";
-    } else {
-        print "Host$i: $host: ${red}erro na conexão${color_reset}: $resultado\n";
-    }    
-}
-
+# Testando configurações de Customer::AuthModule
 print "Customer::AuthModule:\n";
-CustomerAuthModuleHOST:
-for my $i (0..9) {
-    my $suffix = $i == 0 ? '' : $i;
-    # Acessando o valor correspondente no $ConfigObject
-    my $host = $ConfigObject->{"Customer::AuthModule::LDAP::Host$suffix"};
-
-    next CustomerAuthModuleHOST if (!$host);
-
-    my $port = 389;
-
-    if(
-         $ConfigObject->{"Customer::AuthModule::LDAP::Param$suffix"} 
-         && $ConfigObject->{"Customer::AuthModule::LDAP::Param$suffix"}->{'port'}
-    ) { 
-      $port = $ConfigObject->{"Customer::AuthModule::LDAP::Param$suffix"}->{'port'};
-    }
-
-    # Testando a conexão LDAP para o host atual
-    my $resultado = testar_conexao_ldap($host,$port);
-    
-    # Imprimindo a saída no formato destacado
-    if ($resultado == 1) {
-        print "Host$i: $host: ${green}OK${color_reset}\n";
-    } else {
-        print "Host$i: $host: ${red}erro na conexão${color_reset}: $resultado\n";
-    }    
-}
-
+testar_hosts_ldap("Customer::AuthModule::LDAP::Host", 9, 'Host', 'Param.port');
