@@ -91,15 +91,17 @@ for my $i (0..9) {
     ) { 
       $port = $ConfigObject->{"AuthModule::LDAP::Param$suffix"}->{'port'};
     }
-
+    
+    print "Host$i: $host";
+    
     # Testando a conexão LDAP para o host atual
     my $resultado = testar_conexao_ldap($host,$port);
     
     # Imprimindo a saída no formato destacado
     if ($resultado == 1) {
-        print "Host$i: $host: ${green}OK${color_reset}\n";
+        print "${green}OK${color_reset}\n";
     } else {
-        print "Host$i: $host: ${red}erro na conexão${color_reset}: $resultado\n";
+        print "${red}erro na conexão${color_reset}: $resultado\n";
     }    
 }
 
