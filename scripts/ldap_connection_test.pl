@@ -58,7 +58,7 @@ sub testar_conexao_ldap {
     my ($host,$port) = @_;
     
     # Tentativa de conexão LDAP
-    my $ldap = Net::LDAP->new($host, port => $port);
+    my $ldap = Net::LDAP->new($host, port => $port, timeout => 10);
     if ($ldap) {
         $ldap->disconnect;
         return 1; # Conexão bem-sucedida
