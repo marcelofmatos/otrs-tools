@@ -92,7 +92,7 @@ for my $i (0..9) {
       $port = $ConfigObject->{"AuthModule::LDAP::Param$suffix"}->{'port'};
     }
     
-    print "Host$i: $host";
+    print "Host$i: $host: ";
     
     # Testando a conexão LDAP para o host atual
     my $resultado = testar_conexao_ldap($host,$port);
