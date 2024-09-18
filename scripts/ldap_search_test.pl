@@ -73,7 +73,7 @@ my $AuthObject = $Kernel::OM->Get('Kernel::System::Auth');
 sub search_by_filter {
     my ($host, $port, $base_dn, $bind_dn, $bind_password, $ldap_filter) = @_;
     
-    my $ldap = Net::LDAP->new($host, port => $port, verify => 'never');
+    my $ldap = Net::LDAP->new($host, port => $port, timeout => 3, verify => 'never');
     if (!$ldap) {
         die "Failed to connect to LDAP server: $@";
     }

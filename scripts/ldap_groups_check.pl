@@ -114,7 +114,7 @@ for my $i (0..9) {
     my $bind_dn         = $ConfigObject->{"AuthSyncModule::LDAP::SearchUserDN$suffix"};
     my $bind_password   = $ConfigObject->{"AuthSyncModule::LDAP::SearchUserPw$suffix"};
 
-    my $ldap = Net::LDAP->new($host, port => $port, verify => 'never');
+    my $ldap = Net::LDAP->new($host, port => $port, timeout => 3, verify => 'never');
     if (!$ldap) {
         die "Failed to connect to LDAP server: $@";
     }

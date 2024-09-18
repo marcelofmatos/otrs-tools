@@ -40,7 +40,7 @@ my $color_reset = "\e[0m";
 
 sub testar_conexao_ldap {
     my ($host, $port) = @_;
-    my $ldap = Net::LDAP->new($host, port => $port, timeout => 3);
+    my $ldap = Net::LDAP->new($host, port => $port, timeout => 3, verify => 'never');
     return $ldap ? 1 : $@;
 }
 
