@@ -43,33 +43,33 @@ use Data::Dumper;
 my $debug = 0;
 my $attrs_list = 'cn,mail,uid,sAMAccountName';
 my $sizelimit = 1000;
-
 my $ldap_filter;
+my $host;
+my $port;
+
 GetOptions(
-      'filter=s' => \$ldap_filter,
-      'attrs=s' => \$attrs_list,
-      'debug' => \$debug,
+    'filter=s' => \$ldap_filter,
+    'attrs=s'  => \$attrs_list,
+    'debug'    => \$debug,
+    'host=s'   => \$host,
+    'port=i'   => \$port,
 );
 
 my $attrs = [split ',', $attrs_list];
 
-# Inicializa o Object Manager
 local $Kernel::OM = Kernel::System::ObjectManager->new(
     'Kernel::System::Log' => {
         LogPrefix => 'OTRS-ldapsearch',
     },
 );
 
-# Criando instâncias dos objetos necessários
-my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-my $EncodeObject = $Kernel::OM->Get('Kernel::System::Encode');
-my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
-my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
-my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
-my $AuthObject = $Kernel::OM->Get('Kernel::System::Auth');
+my $ConfigObject  = $Kernel::OM->Get('Kernel::Config');
+my $EncodeObject  = $Kernel::OM->Get('Kernel::System::Encode');
+my $LogObject     = $Kernel::OM->Get('Kernel::System::Log');
+my $MainObject    = $Kernel::OM->Get('Kernel::System::Main');
+my $DBObject      = $Kernel::OM->Get('Kernel::System::DB');
+my $AuthObject    = $Kernel::OM->Get('Kernel::System::Auth');
 
-
-# Function to search user by filter
 sub search_by_filter {
     my ($host, $port, $base_dn, $bind_dn, $bind_password, $ldap_filter) = @_;
     
@@ -99,41 +99,40 @@ sub search_by_filter {
     
     my @entries = $mesg->entries;
     if (@entries) {
-        return \@entries; # Return array reference of LDAP entries
+        return \@entries;
     } else {
-        return; # No user found
+        return;
     }
 }
 
-# ANSI escape codes for colors
-my $green = "\e[32m";   # green
-my $red = "\e[31m";     # red
-my $reset_color = "\e[0m"; # reset color
+my $green = "\e[32m";
+my $red = "\e[31m";
+my $reset_color = "\e[0m";
 
-# Loop from 1 to 9
 AuthModuleHOST:
 for my $i (1..9) {
-    # Acessando o valor correspondente no $ConfigObject
-    my $host = $ConfigObject->{"AuthModule::LDAP::Host$i"};
+    my $config_host = $ConfigObject->{"AuthModule::LDAP::Host$i"};
 
-    next AuthModuleHOST if (!$host);
+    next AuthModuleHOST if (!$config_host && !$host);
 
-    my $port = 389;
+    $host ||= $config_host;
+    my $config_port = 389;
 
-    if(
+    if (
          $ConfigObject->{"AuthModule::LDAP::Param$i"} 
          && $ConfigObject->{"AuthModule::LDAP::Param$i"}->{'port'}
     ) { 
-      $port = $ConfigObject->{"AuthModule::LDAP::Param$i"}->{'port'};
+      $config_port = $ConfigObject->{"AuthModule::LDAP::Param$i"}->{'port'};
     }
 
-    my $ldap_port       = $port;
-    my $base_dn         = $ConfigObject->{"AuthModule::LDAP::BaseDN$i"};
-    my $bind_dn         = $ConfigObject->{"AuthModule::LDAP::SearchUserDN$i"};
-    my $bind_password   = $ConfigObject->{"AuthModule::LDAP::SearchUserPw$i"};
+    $port ||= $config_port;
 
-    print "$host, $ldap_port, $base_dn, $bind_dn, $ldap_filter\n";
-    my $result = search_by_filter($host, $ldap_port, $base_dn, $bind_dn, $bind_password, $ldap_filter);
+    my $base_dn       = $ConfigObject->{"AuthModule::LDAP::BaseDN$i"};
+    my $bind_dn       = $ConfigObject->{"AuthModule::LDAP::SearchUserDN$i"};
+    my $bind_password = $ConfigObject->{"AuthModule::LDAP::SearchUserPw$i"};
+
+    print "$host, $port, $base_dn, $bind_dn, $ldap_filter\n";
+    my $result = search_by_filter($host, $port, $base_dn, $bind_dn, $bind_password, $ldap_filter);
 
     my @headers = @$attrs;
     my @values;
@@ -144,8 +143,6 @@ for my $i (1..9) {
         printf("$format_headers\n", @headers);
         foreach my $entry (@$result) {
             @values = ();
-            my $object_name = $entry->{asn}->{objectName};
-
             foreach my $attr (@headers) {
                 foreach my $attribute (@{$entry->{asn}->{attributes}}) {
                     if($attribute->{type} eq $attr) {
