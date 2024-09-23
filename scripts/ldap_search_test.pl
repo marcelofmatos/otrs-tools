@@ -134,6 +134,8 @@ for my $i (0..9) {
     my $bind_dn       = $ConfigObject->{"AuthModule::LDAP::SearchUserDN$suffix"};
     my $bind_password = $ConfigObject->{"AuthModule::LDAP::SearchUserPw$suffix"};
 
+    next AuthModuleHOST if (!$bind_dn && !$bind_password);
+
     print "$host, $port, $base_dn, $bind_dn, $ldap_filter\n";
     my $result = search_by_filter($host, $port, $base_dn, $bind_dn, $bind_password, $ldap_filter);
 
