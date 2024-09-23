@@ -110,8 +110,11 @@ my $red = "\e[31m";
 my $reset_color = "\e[0m";
 
 AuthModuleHOST:
-for my $i (1..9) {
-    my $config_host = $ConfigObject->{"AuthModule::LDAP::Host$i"};
+for my $i (0..9) {
+
+    my $suffix = $i == 0 ? '' : $i;
+
+    my $config_host = $ConfigObject->{"AuthModule::LDAP::Host$suffix"};
 
     next AuthModuleHOST if (!$config_host && !$host);
 
@@ -119,17 +122,17 @@ for my $i (1..9) {
     my $config_port = 389;
 
     if (
-         $ConfigObject->{"AuthModule::LDAP::Param$i"} 
-         && $ConfigObject->{"AuthModule::LDAP::Param$i"}->{'port'}
+         $ConfigObject->{"AuthModule::LDAP::Param$suffix"} 
+         && $ConfigObject->{"AuthModule::LDAP::Param$suffix"}->{'port'}
     ) { 
-      $config_port = $ConfigObject->{"AuthModule::LDAP::Param$i"}->{'port'};
+      $config_port = $ConfigObject->{"AuthModule::LDAP::Param$suffix"}->{'port'};
     }
 
     $port ||= $config_port;
 
-    my $base_dn       = $ConfigObject->{"AuthModule::LDAP::BaseDN$i"};
-    my $bind_dn       = $ConfigObject->{"AuthModule::LDAP::SearchUserDN$i"};
-    my $bind_password = $ConfigObject->{"AuthModule::LDAP::SearchUserPw$i"};
+    my $base_dn       = $ConfigObject->{"AuthModule::LDAP::BaseDN$suffix"};
+    my $bind_dn       = $ConfigObject->{"AuthModule::LDAP::SearchUserDN$suffix"};
+    my $bind_password = $ConfigObject->{"AuthModule::LDAP::SearchUserPw$suffix"};
 
     print "$host, $port, $base_dn, $bind_dn, $ldap_filter\n";
     my $result = search_by_filter($host, $port, $base_dn, $bind_dn, $bind_password, $ldap_filter);
