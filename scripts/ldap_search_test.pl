@@ -122,10 +122,10 @@ for my $i (0..9) {
     my $config_port = 389;
 
     if (
-         $ConfigObject->{"AuthModule::LDAP::Param$suffix"} 
-         && $ConfigObject->{"AuthModule::LDAP::Param$suffix"}->{'port'}
+         $ConfigObject->{"AuthModule::LDAP::Params$suffix"} 
+         && $ConfigObject->{"AuthModule::LDAP::Params$suffix"}->{'port'}
     ) { 
-      $config_port = $ConfigObject->{"AuthModule::LDAP::Param$suffix"}->{'port'};
+      $config_port = $ConfigObject->{"AuthModule::LDAP::Params$suffix"}->{'port'};
     }
 
     $port ||= $config_port;
