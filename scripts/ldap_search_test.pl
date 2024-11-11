@@ -114,11 +114,10 @@ for my $i (0..9) {
 
     my $suffix = $i == 0 ? '' : $i;
 
-    my $config_host = $ConfigObject->{"AuthModule::LDAP::Host$suffix"};
+    my $host = $ConfigObject->{"AuthModule::LDAP::Host$suffix"};
 
-    next AuthModuleHOST if (!$config_host && !$host);
+    next AuthModuleHOST if (!$host);
 
-    $host ||= $config_host;
     my $config_port = 389;
 
     if (
