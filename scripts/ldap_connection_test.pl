@@ -49,7 +49,15 @@ sub testar_hosts_ldap {
 
     for my $i (0..$max) {
         my $suffix = $i == 0 ? '' : $i;
-        my $config_entry = $ConfigObject->{"$config_prefix$suffix"};
+        my $config_entry;
+        my $params_entry;
+
+        if ($is_customer_user) {
+          $config_entry = $ConfigObject->{"$config_prefix$suffix"};
+        } else {
+          $config_entry = $ConfigObject->{"${config_prefix}::$key_host$suffix"};
+          $params_entry = $ConfigObject->{"${config_prefix}::Params$suffix"};
+        }
 
         next unless $config_entry;
 
@@ -64,14 +72,14 @@ sub testar_hosts_ldap {
             }
         } else {
             $host = ref $config_entry eq 'HASH' ? $config_entry->{$key_host} : $config_entry;
-            if (ref $config_entry eq 'HASH' && $config_entry->{$key_port}) {
-                $port = $config_entry->{$key_port};
+            if (ref $params_entry eq 'HASH' && $params_entry->{$key_port}) {
+                $port = $params_entry->{$key_port};
             }
         }
         
         next unless $host;
 
-        print "Host$suffix: $host: ";
+        print "Host$suffix: $host:$port ";
 
         my $resultado = testar_conexao_ldap($host, $port);
 
@@ -84,14 +92,14 @@ sub testar_hosts_ldap {
 }
 
 print "AuthModule:\n";
-testar_hosts_ldap("AuthModule::LDAP::Host", 9, 'Host', 'Param.port', 0);
+testar_hosts_ldap("AuthModule::LDAP", 9, 'Host', 'port', 0);
 
 print "AuthSyncModule:\n";
-testar_hosts_ldap("AuthSyncModule::LDAP::Host", 9, 'Host', 'Param.port', 0);
+testar_hosts_ldap("AuthSyncModule::LDAP", 9, 'Host', 'port', 0);
 
 print "CustomerUser:\n";
 testar_hosts_ldap("CustomerUser", 9, 'Params.Host', 'Params.Params.port', 1);
 
 print "Customer::AuthModule:\n";
-testar_hosts_ldap("Customer::AuthModule::LDAP::Host", 9, 'Host', 'Param.port', 0);
+testar_hosts_ldap("Customer::AuthModule::LDAP", 9, 'Host', 'port', 0);
 
