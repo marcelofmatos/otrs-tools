@@ -70,9 +70,9 @@ for my $i (0..9) {
     my $resultado = testar_conexao_ldap($host, $port);
     
     if ($resultado == 1) {
-        print "Host$i: $host: ${green}OK${color_reset}\n";
+        print "Host$i: $host($base_dn): ${green}OK${color_reset}\n";
     } else {
-        print "Host$i: $host: ${red}erro na conexão${color_reset}: $resultado\n";
+        print "Host$i: $host($base_dn): ${red}erro na conexão${color_reset}: $resultado\n";
     }    
 }
 
@@ -111,6 +111,7 @@ for my $i (0..9) {
     next if (!($ConfigObject->{"CustomerUser$suffix"}));
 
     my $host = $ConfigObject->{"CustomerUser$suffix"}->{"Params"}->{"Host"};
+    my $base_dn = $ConfigObject->{"CustomerUser$suffix"}->{"Params"}->{"BaseDN"};
 
     next if (!($ConfigObject->{"CustomerUser$suffix"}->{"Module"} eq "Kernel::System::CustomerUser::LDAP"));
 
@@ -128,9 +129,9 @@ for my $i (0..9) {
     my $resultado = testar_conexao_ldap($host, $port);
     
     if ($resultado == 1) {
-        print "Host$i: $host: ${green}OK${color_reset}\n";
+        print "Host$i: $host($base_dn): ${green}OK${color_reset}\n";
     } else {
-        print "Host$i: $host: ${red}erro na conexão${color_reset}: $resultado\n";
+        print "Host$i: $host($base_dn): ${red}erro na conexão${color_reset}: $resultado\n";
     }    
 }
 
@@ -139,6 +140,7 @@ CustomerAuthModuleHOST:
 for my $i (0..9) {
     my $suffix = $i == 0 ? '' : $i;
     my $host = $ConfigObject->{"Customer::AuthModule::LDAP::Host$suffix"};
+    my $base_dn = $ConfigObject->{"Customer::AuthModule::LDAP::BaseDN$suffix"};
 
     next CustomerAuthModuleHOST if (!$host);
 
@@ -154,8 +156,8 @@ for my $i (0..9) {
     my $resultado = testar_conexao_ldap($host, $port);
     
     if ($resultado == 1) {
-        print "Host$i: $host: ${green}OK${color_reset}\n";
+        print "Host$i: $host($base_dn): ${green}OK${color_reset}\n";
     } else {
-        print "Host$i: $host: ${red}erro na conexão${color_reset}: $resultado\n";
+        print "Host$i: $host($base_dn): ${red}erro na conexão${color_reset}: $resultado\n";
     }    
 }
