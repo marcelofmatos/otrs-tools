@@ -84,11 +84,11 @@ for my $i (0..9) {
 
     my $resultado = testar_conexao_ldap($host, $port);
     
-    if ($resultado == 1) {
+    if ($resultado eq '1') {
         print "Host$i: $host($base_dn): ${green}OK${color_reset}\n";
     } else {
         print "Host$i: $host($base_dn): ${red}erro na conexão${color_reset}: $resultado\n";
-    }    
+    }
 }
 
 print "AuthSyncModule:\n";
@@ -111,11 +111,11 @@ for my $i (0..9) {
 
     my $resultado = testar_conexao_ldap($host, $port);
     
-    if ($resultado == 1) {
+    if ($resultado eq '1') {
         print "Host$i: $host($base_dn): ${green}OK${color_reset}\n";
     } else {
         print "Host$i: $host($base_dn): ${red}erro na conexão${color_reset}: $resultado\n";
-    }    
+    }
 }
 
 print "CustomerUser:\n";
@@ -143,11 +143,11 @@ for my $i (0..9) {
 
     my $resultado = testar_conexao_ldap($host, $port);
     
-    if ($resultado == 1) {
+    if ($resultado eq '1') {
         print "Host$i: $host($base_dn): ${green}OK${color_reset}\n";
     } else {
         print "Host$i: $host($base_dn): ${red}erro na conexão${color_reset}: $resultado\n";
-    }    
+    }
 }
 
 print "Customer::AuthModule:\n";
@@ -170,9 +170,9 @@ for my $i (0..9) {
 
     my $resultado = testar_conexao_ldap($host, $port);
     
-    if ($resultado == 1) {
+    if ($resultado eq '1') {
         print "Host$i: $host($base_dn): ${green}OK${color_reset}\n";
     } else {
         print "Host$i: $host($base_dn): ${red}erro na conexão${color_reset}: $resultado\n";
-    }    
+    }
 }
