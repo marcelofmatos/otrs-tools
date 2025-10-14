@@ -46,24 +46,18 @@ sub testar_conexao_ldap {
     # Configurar timeout padrão de 10 segundos (pode ser sobrescrito pela variável LDAP_TIMEOUT)
     my $timeout = $ENV{LDAP_TIMEOUT} || 10;
     
-    eval {
-        my $ldap = Net::LDAP->new(
-            $host, 
-            port => $port,
-            timeout => $timeout,
-            onerror => 'die'
-        );
-        if ($ldap) {
-            $ldap->disconnect;
-            return 1;
-        }
-    };
+    my $ldap = Net::LDAP->new(
+        $host, 
+        port => $port,
+        timeout => $timeout
+    );
     
-    if ($@) {
-        return "Timeout ou erro de conexão após ${timeout}s: $@";
+    if ($ldap) {
+        $ldap->disconnect;
+        return 1;
+    } else {
+        return "Erro de conexão ou timeout após ${timeout}s: $@";
     }
-    
-    return 0;
 }
 
 my $green = "\e[32m";

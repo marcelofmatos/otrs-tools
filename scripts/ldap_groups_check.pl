@@ -130,18 +130,14 @@ for my $i (0..9) {
     # Configurar timeout (prioridade: --timeout, LDAP_TIMEOUT, padrão 10s)
     my $timeout = $timeout_opt || $ENV{LDAP_TIMEOUT} || 10;
     
-    my $ldap;
-    eval {
-        $ldap = Net::LDAP->new(
-            $host, 
-            port => $port, 
-            timeout => $timeout, 
-            verify => 'never',
-            onerror => 'die'
-        );
-    };
-    if ($@ || !$ldap) {
-        die "Failed to connect to LDAP server after ${timeout}s: $@";
+    my $ldap = Net::LDAP->new(
+        $host, 
+        port => $port, 
+        timeout => $timeout, 
+        verify => 'never'
+    );
+    if (!$ldap) {
+        die "Failed to connect to LDAP server after ${timeout}s: Connection timeout or refused";
     }
     
     my $mesg = $ldap->bind(dn => $bind_dn, password => $bind_password);
