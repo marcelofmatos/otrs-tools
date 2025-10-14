@@ -2,6 +2,17 @@
 # --
 # Copyright (C) 2024-2024 Marcelo Matos https://github.com/marcelofmatos/otrs-tools
 # --
+# Script para verificar grupos LDAP configurados no OTRS/Znuny
+# 
+# Timeout configurável:
+# - Via parâmetro: --timeout 15
+# - Via variável de ambiente: LDAP_TIMEOUT=15
+# - Padrão: 10 segundos
+# 
+# Exemplos: 
+#   ./ldap_groups_check.pl --timeout 30 --existing
+#   LDAP_TIMEOUT=5 ./ldap_groups_check.pl --non-existing
+# --
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -41,6 +52,7 @@ use Getopt::Long;
 use Data::Dumper;
 
 my $debug = 0;
+my $timeout_opt;
 my $filter = '(objectClass=*)';
 my ($show_existing, $show_non_existing);
 my (@existing_groups, @non_existing_groups);
@@ -49,7 +61,8 @@ my (@existing_groups, @non_existing_groups);
 GetOptions(
     "existing"      => \$show_existing,   # Mostrar somente grupos existentes
     "non-existing"  => \$show_non_existing, # Mostrar somente grupos não existentes
-      'debug' => \$debug,
+    'debug' => \$debug,
+    'timeout=i' => \$timeout_opt,  # Timeout em segundos
 );
 
 # Inicializa o Object Manager
@@ -114,9 +127,21 @@ for my $i (0..9) {
     my $bind_dn         = $ConfigObject->{"AuthSyncModule::LDAP::SearchUserDN$suffix"};
     my $bind_password   = $ConfigObject->{"AuthSyncModule::LDAP::SearchUserPw$suffix"};
 
-    my $ldap = Net::LDAP->new($host, port => $port, timeout => 3, verify => 'never');
-    if (!$ldap) {
-        die "Failed to connect to LDAP server: $@";
+    # Configurar timeout (prioridade: --timeout, LDAP_TIMEOUT, padrão 10s)
+    my $timeout = $timeout_opt || $ENV{LDAP_TIMEOUT} || 10;
+    
+    my $ldap;
+    eval {
+        $ldap = Net::LDAP->new(
+            $host, 
+            port => $port, 
+            timeout => $timeout, 
+            verify => 'never',
+            onerror => 'die'
+        );
+    };
+    if ($@ || !$ldap) {
+        die "Failed to connect to LDAP server after ${timeout}s: $@";
     }
     
     my $mesg = $ldap->bind(dn => $bind_dn, password => $bind_password);

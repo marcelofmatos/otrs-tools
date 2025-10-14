@@ -1,4 +1,11 @@
 #!/usr/bin/env perl
+# Script para testar conexões LDAP configuradas no OTRS/Znuny
+# 
+# Timeout configurável:
+# - Via variável de ambiente: LDAP_TIMEOUT=15 ./ldap_connection_test.pl
+# - Padrão: 10 segundos
+# 
+# Exemplo: LDAP_TIMEOUT=5 ./ldap_connection_test.pl
 
 use strict;
 use warnings;
@@ -36,13 +43,27 @@ my $HTTPBasicAuthObject = $Kernel::OM->Get('Kernel::System::Auth');
 sub testar_conexao_ldap {
     my ($host, $port) = @_;
     
-    my $ldap = Net::LDAP->new($host, port => $port);
-    if ($ldap) {
-        $ldap->disconnect;
-        return 1;
-    } else {
-        return $@;
+    # Configurar timeout padrão de 10 segundos (pode ser sobrescrito pela variável LDAP_TIMEOUT)
+    my $timeout = $ENV{LDAP_TIMEOUT} || 10;
+    
+    eval {
+        my $ldap = Net::LDAP->new(
+            $host, 
+            port => $port,
+            timeout => $timeout,
+            onerror => 'die'
+        );
+        if ($ldap) {
+            $ldap->disconnect;
+            return 1;
+        }
+    };
+    
+    if ($@) {
+        return "Timeout ou erro de conexão após ${timeout}s: $@";
     }
+    
+    return 0;
 }
 
 my $green = "\e[32m";

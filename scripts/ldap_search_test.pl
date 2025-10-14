@@ -2,6 +2,17 @@
 # --
 # Copyright (C) 2024-2024 Marcelo Matos https://github.com/marcelofmatos/otrs-tools
 # --
+# Script para buscar entradas LDAP configuradas no OTRS/Znuny
+# 
+# Timeout configurável:
+# - Via parâmetro: --timeout 15
+# - Via variável de ambiente: LDAP_TIMEOUT=15
+# - Padrão: 10 segundos
+# 
+# Exemplos: 
+#   ./ldap_search_test.pl --timeout 30 --filter "(uid=usuario)"
+#   LDAP_TIMEOUT=5 ./ldap_search_test.pl --filter "(sAMAccountName=joao)"
+# --
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -41,6 +52,7 @@ use Getopt::Long;
 use Data::Dumper;
 
 my $debug = 0;
+my $timeout_opt;
 my $attrs_list = 'cn,mail,uid,sAMAccountName';
 my $sizelimit = 1000;
 my $ldap_filter;
@@ -53,6 +65,7 @@ GetOptions(
     'debug'    => \$debug,
     'host=s'   => \$host,
     'port=i'   => \$port,
+    'timeout=i' => \$timeout_opt,  # Timeout em segundos
 );
 
 my $attrs = [split ',', $attrs_list];
@@ -73,9 +86,21 @@ my $AuthObject    = $Kernel::OM->Get('Kernel::System::Auth');
 sub search_by_filter {
     my ($host, $port, $base_dn, $bind_dn, $bind_password, $ldap_filter) = @_;
     
-    my $ldap = Net::LDAP->new($host, port => $port, timeout => 3, verify => 'never');
-    if (!$ldap) {
-        die "Failed to connect to LDAP server: $@";
+    # Configurar timeout (prioridade: --timeout, LDAP_TIMEOUT, padrão 10s)
+    my $timeout = $timeout_opt || $ENV{LDAP_TIMEOUT} || 10;
+    
+    my $ldap;
+    eval {
+        $ldap = Net::LDAP->new(
+            $host, 
+            port => $port, 
+            timeout => $timeout, 
+            verify => 'never',
+            onerror => 'die'
+        );
+    };
+    if ($@ || !$ldap) {
+        die "Failed to connect to LDAP server after ${timeout}s: $@";
     }
     
     my $mesg = $ldap->bind(dn => $bind_dn, password => $bind_password);
