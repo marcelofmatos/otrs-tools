@@ -3,7 +3,7 @@
 # 
 # Timeout configurável:
 # - Via variável de ambiente: LDAP_TIMEOUT=15 ./ldap_connection_test.pl
-# - Padrão: 10 segundos
+# - Padrão: 3 segundos
 # 
 # Exemplo: LDAP_TIMEOUT=5 ./ldap_connection_test.pl
 
@@ -43,8 +43,8 @@ my $HTTPBasicAuthObject = $Kernel::OM->Get('Kernel::System::Auth');
 sub testar_conexao_ldap {
     my ($host, $port) = @_;
     
-    # Configurar timeout padrão de 10 segundos (pode ser sobrescrito pela variável LDAP_TIMEOUT)
-    my $timeout = $ENV{LDAP_TIMEOUT} || 10;
+    # Configurar timeout padrão de 3 segundos (pode ser sobrescrito pela variável LDAP_TIMEOUT)
+    my $timeout = $ENV{LDAP_TIMEOUT} || 3;
     
     my $ldap = Net::LDAP->new(
         $host, 

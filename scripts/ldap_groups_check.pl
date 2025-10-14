@@ -7,7 +7,7 @@
 # Timeout configurável:
 # - Via parâmetro: --timeout 15
 # - Via variável de ambiente: LDAP_TIMEOUT=15
-# - Padrão: 10 segundos
+# - Padrão: 3 segundos
 # 
 # Exemplos: 
 #   ./ldap_groups_check.pl --timeout 30 --existing
@@ -127,8 +127,8 @@ for my $i (0..9) {
     my $bind_dn         = $ConfigObject->{"AuthSyncModule::LDAP::SearchUserDN$suffix"};
     my $bind_password   = $ConfigObject->{"AuthSyncModule::LDAP::SearchUserPw$suffix"};
 
-    # Configurar timeout (prioridade: --timeout, LDAP_TIMEOUT, padrão 10s)
-    my $timeout = $timeout_opt || $ENV{LDAP_TIMEOUT} || 10;
+    # Configurar timeout (prioridade: --timeout, LDAP_TIMEOUT, padrão 3s)
+    my $timeout = $timeout_opt || $ENV{LDAP_TIMEOUT} || 3;
     
     my $ldap = Net::LDAP->new(
         $host, 
