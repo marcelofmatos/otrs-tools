@@ -10,7 +10,9 @@
 # - Padrão: 3 segundos
 # 
 # Exemplos: 
-#   ./ldap_search_test.pl --timeout 30 --filter "(uid=usuario)"
+#   ./ldap_search_test.pl                                        # Usa filtro padrão (|(uid=*)(sAMAccountName=*)) com limite de 10
+#   ./ldap_search_test.pl --timeout 30 --filter "(uid=usuario)" # Filtro personalizado
+#   ./ldap_search_test.pl --sizelimit 5                         # Limite personalizado de 5 entradas
 #   LDAP_TIMEOUT=5 ./ldap_search_test.pl --filter "(sAMAccountName=joao)"
 # --
 # This program is free software: you can redistribute it and/or modify
@@ -54,19 +56,28 @@ use Data::Dumper;
 my $debug = 0;
 my $timeout_opt;
 my $attrs_list = 'cn,mail,uid,sAMAccountName';
-my $sizelimit = 1000;
+
+# Constantes padrão para filtro e limite - funcionam tanto em AD quanto OpenLDAP
+my $DEFAULT_FILTER = '(|(uid=*)(sAMAccountName=*))';  # Busca qualquer uid (OpenLDAP) ou sAMAccountName (AD)
+my $DEFAULT_SIZELIMIT = 10;                           # Limite de 10 entradas para testes
+
+my $sizelimit = $DEFAULT_SIZELIMIT;
 my $ldap_filter;
 my $host;
 my $port;
 
 GetOptions(
-    'filter=s' => \$ldap_filter,
-    'attrs=s'  => \$attrs_list,
-    'debug'    => \$debug,
-    'host=s'   => \$host,
-    'port=i'   => \$port,
-    'timeout=i' => \$timeout_opt,  # Timeout em segundos
+    'filter=s'    => \$ldap_filter,
+    'attrs=s'     => \$attrs_list,
+    'debug'       => \$debug,
+    'host=s'      => \$host,
+    'port=i'      => \$port,
+    'timeout=i'   => \$timeout_opt,  # Timeout em segundos
+    'sizelimit=i' => \$sizelimit,    # Limite de entradas
 );
+
+# Se nenhum filtro foi fornecido, usar o filtro padrão
+$ldap_filter = $DEFAULT_FILTER if (!defined($ldap_filter) || $ldap_filter eq '');
 
 my $attrs = [split ',', $attrs_list];
 
