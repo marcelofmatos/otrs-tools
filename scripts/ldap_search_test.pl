@@ -56,6 +56,7 @@ use Getopt::Long;
 use Data::Dumper;
 
 my $debug = 0;
+my $quiet_sizelimit = 0;  # Se 1, não mostra warning de sizelimit exceeded
 my $timeout_opt;
 my $attrs_list = 'cn,mail,uid,sAMAccountName';
 
@@ -131,8 +132,14 @@ sub search_by_filter {
         sizelimit => $sizelimit,
     );
 
+    # Tratar erro de sizelimit exceeded como resultado válido (resultado parcial)
     if ($mesg->code) {
-        die "LDAP search failed: " . $mesg->error;
+        # Código 4 = SIZE_LIMIT_EXCEEDED - isso é esperado e OK
+        if ($mesg->code == 4) {
+            warn "LDAP Warning: Size limit exceeded, showing partial results...\n";
+        } else {
+            die "LDAP search failed: " . $mesg->error;
+        }
     }
     
     my @entries = $mesg->entries;
