@@ -10,9 +10,11 @@
 # - Padrão: 3 segundos
 # 
 # Exemplos: 
-#   ./ldap_search_test.pl                                        # Usa filtro padrão (a*, admin*, test*, user*) com limite de 1000
+#   ./ldap_search_test.pl                                        # Usa filtro padrão, mostra primeiros 10 resultados
+#   ./ldap_search_test.pl --limit 20                            # Mostra primeiros 20 resultados
 #   ./ldap_search_test.pl --timeout 30 --filter "(uid=usuario)" # Filtro personalizado
-#   ./ldap_search_test.pl --sizelimit 5                         # Limite personalizado de 5 entradas
+#   ./ldap_search_test.pl --sizelimit 5                         # Limite do LDAP (5 entradas)
+#   ./ldap_search_test.pl --limit 0                             # Mostra TODOS os resultados encontrados
 #   LDAP_TIMEOUT=5 ./ldap_search_test.pl --filter "(sAMAccountName=joao)"
 # --
 # This program is free software: you can redistribute it and/or modify
@@ -60,9 +62,11 @@ my $attrs_list = 'cn,mail,uid,sAMAccountName';
 # Constantes padrão para filtro e limite - funcionam tanto em AD quanto OpenLDAP
 # Filtro mais restritivo que busca usuários comuns em testes (a*, admin*, test*, user*)
 my $DEFAULT_FILTER = '(|(uid=a*)(uid=admin*)(uid=test*)(uid=user*)(sAMAccountName=a*)(sAMAccountName=admin*)(sAMAccountName=test*)(sAMAccountName=user*))';  
-my $DEFAULT_SIZELIMIT = 1000;                         # Limite de 1000 entradas (valor original)
+my $DEFAULT_SIZELIMIT = 1000;                         # Limite de entradas do LDAP
+my $DEFAULT_LIMIT = 10;                               # Limite de resultados exibidos (como LIMIT do SQL)
 
 my $sizelimit = $DEFAULT_SIZELIMIT;
+my $display_limit = $DEFAULT_LIMIT;
 my $ldap_filter;
 my $host;
 my $port;
@@ -74,7 +78,8 @@ GetOptions(
     'host=s'      => \$host,
     'port=i'      => \$port,
     'timeout=i'   => \$timeout_opt,  # Timeout em segundos
-    'sizelimit=i' => \$sizelimit,    # Limite de entradas
+    'sizelimit=i' => \$sizelimit,    # Limite de entradas do LDAP
+    'limit=i'     => \$display_limit, # Limite de resultados exibidos
 );
 
 # Se nenhum filtro foi fornecido, usar o filtro padrão
@@ -175,10 +180,18 @@ for my $i (0..9) {
     my @values;
 
     if (defined $result && @$result) {
-        print "${green}Entry with filter $ldap_filter found:${reset_color}\n";
+        my $total_found = scalar(@$result);
+        my $displayed = ($display_limit == 0 || $total_found <= $display_limit) ? $total_found : $display_limit;
+        my $message = $display_limit == 0 ? "showing all $displayed" : "showing first $displayed";
+        
+        print "${green}Entry with filter $ldap_filter found: $total_found result(s), $message${reset_color}\n";
         my $format_headers = "%s\t| " x scalar(@headers);
         printf("$format_headers\n", @headers);
+        
+        my $count = 0;
         foreach my $entry (@$result) {
+            last if $display_limit > 0 && $count >= $display_limit;  # Para quando atingir o limite (se > 0)
+            
             @values = ();
             foreach my $attr (@headers) {
                 foreach my $attribute (@{$entry->{asn}->{attributes}}) {
@@ -193,6 +206,7 @@ for my $i (0..9) {
             if ($debug) {
                 print Dumper($entry->{asn});
             }
+            $count++;
         }
     } else {
         print "${red}Entry with filter $ldap_filter not found.${reset_color}\n";
