@@ -61,7 +61,7 @@ my $attrs_list = 'cn,mail,uid,sAMAccountName';
 
 # Constantes padrão para filtro e limite - funcionam tanto em AD quanto OpenLDAP
 # Filtro mais restritivo que busca usuários comuns em testes (a*, admin*, test*, user*)
-my $DEFAULT_FILTER = '(|(uid=a*)(uid=admin*)(uid=test*)(uid=user*)(sAMAccountName=a*)(sAMAccountName=admin*)(sAMAccountName=test*)(sAMAccountName=user*))';  
+my $DEFAULT_FILTER = '(|(uid=*)(sAMAccountName=*))';
 my $DEFAULT_SIZELIMIT = 1000;                         # Limite de entradas do LDAP
 my $DEFAULT_LIMIT = 10;                               # Limite de resultados exibidos (como LIMIT do SQL)
 
