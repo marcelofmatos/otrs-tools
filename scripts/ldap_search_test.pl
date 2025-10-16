@@ -10,7 +10,7 @@
 # - Padrão: 3 segundos
 # 
 # Exemplos: 
-#   ./ldap_search_test.pl                                        # Usa filtro padrão (a*, admin*, test*, user*) com limite de 10
+#   ./ldap_search_test.pl                                        # Usa filtro padrão (a*, admin*, test*, user*) com limite de 1000
 #   ./ldap_search_test.pl --timeout 30 --filter "(uid=usuario)" # Filtro personalizado
 #   ./ldap_search_test.pl --sizelimit 5                         # Limite personalizado de 5 entradas
 #   LDAP_TIMEOUT=5 ./ldap_search_test.pl --filter "(sAMAccountName=joao)"
@@ -60,7 +60,7 @@ my $attrs_list = 'cn,mail,uid,sAMAccountName';
 # Constantes padrão para filtro e limite - funcionam tanto em AD quanto OpenLDAP
 # Filtro mais restritivo que busca usuários comuns em testes (a*, admin*, test*, user*)
 my $DEFAULT_FILTER = '(|(uid=a*)(uid=admin*)(uid=test*)(uid=user*)(sAMAccountName=a*)(sAMAccountName=admin*)(sAMAccountName=test*)(sAMAccountName=user*))';  
-my $DEFAULT_SIZELIMIT = 10;                           # Limite de 10 entradas para testes
+my $DEFAULT_SIZELIMIT = 1000;                         # Limite de 1000 entradas (valor original)
 
 my $sizelimit = $DEFAULT_SIZELIMIT;
 my $ldap_filter;
